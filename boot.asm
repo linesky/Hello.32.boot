@@ -26,7 +26,19 @@ id              db      'FAT12   '
 eess            dw      0
 ees1            dw      0
 _start:
-jmp kernel_start
+;load into 1000h:100h
+    mov ax,0x1000
+    mov bx,0h
+    mov es,ax
+    mov al,0x7a
+    mov ch,0
+    mov cl,2
+    mov dh,0
+    mov ah,2
+    mov dl,0
+;int load sectores into memory
+    int 13h
+jmp kernel
 gdt_start:
 
 gdt_null:
@@ -57,7 +69,7 @@ gdt_descriptor:
 
 CODE_SEG equ gdt_code - gdt_start
 DATA_SEG equ gdt_data - gdt_start
-kernel_start:
+kernel:
     mov ax, 0
     mov ss, ax
     mov sp, 0xFFFC
@@ -76,6 +88,7 @@ kernel_start:
     jmp CODE_SEG:b32
 
 [bits 32]
+nop 
 
 print:
     pusha
@@ -103,9 +116,15 @@ b32:
 
     mov ebp, 0x90000
     mov esp, ebp
-
-    mov esi, hello
-    call print
+;start eax ebx ecx edx to enter on program
+    mov eax,0
+    mov ebx,0
+    mov ecx,0xf000
+    mov edx,0
+    mov esi,0
+    mov edi,0
+    ds
+    call dword 0x10000
 exits:
 halts:
     jmp halts
