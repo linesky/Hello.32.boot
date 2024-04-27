@@ -2,6 +2,11 @@ bits 32
 org 0x10000
     mov esi, hello
     call print
+    mov edx,2
+    mov edi,0xb8001
+    mov al,0x60
+    mov ecx,2000
+    call fill 
     call exits
 print:
     pusha
@@ -18,7 +23,13 @@ print2:
 print3:
     popa
     ret
-
+fill:
+    mov [edi],al
+    add edi,edx
+    dec ecx
+    cmp ecx,0
+    jnz fill
+ret
 exits:
 halts:
     jmp halts
